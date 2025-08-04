@@ -11,6 +11,7 @@ function App() {
       <Routes>
         {/*               Rutas publicas           */}
         <Route path="/" element={<LoginPage />} />
+        <Route path="/dashboard" element={<DashboardPage />} />
 
         {/*               Rutas privadas           
         <Route
