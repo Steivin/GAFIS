@@ -3,7 +3,7 @@ import { useState } from "react";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
-  return (
+  return (g
     <div className="relative min-h-screen bg-cover bg-center" >
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40" />
 
