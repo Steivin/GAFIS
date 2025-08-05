@@ -1,21 +1,28 @@
 import { useState } from "react";
 
-function App() {
+function LoginPage() {
   const [showLogin, setShowLogin] = useState(false);
 
   return (
     <div className="relative min-h-screen bg-cover bg-center">
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40" />
-      {/* Flecha desplegable */}
+
+      {/* Botón desplegable pegado a la derecha y centrado verticalmente */}
       <button
         onClick={() => setShowLogin(!showLogin)}
-        className="absolute top-10 right-10 z-20 bg-white rounded-full shadow-lg p-2 hover:bg-gray-100 transition"
+        className="absolute top-1/2 right-0 z-20 bg-white rounded shadow-lg p-3 hover:bg-gray-100  duration-700ms transform -translate-y-1/2"
+        aria-expanded={showLogin}
+        aria-controls="login-form"
       >
-        <span className="text-xl">{showLogin ? "▲" : "▼"}</span>
+        <span className="text-xl">{showLogin ? "▶" : "◀"}</span>
       </button>
-      {/* Formulario de Login */}
+
+      {/* Formulario de Login desplegado hacia la izquierda del botón, alineado verticalmente */}
       {showLogin && (
-        <div className="absolute right-10 top-20 z-20 w-80 bg-white bg-opacity-90 rounded-lg shadow-lg p-6 backdrop-blur-md">
+        <div
+          id="login-form"
+          className="absolute top-1/2 right-[calc(2.5rem+2.5rem+0.5rem)] z-20 w-80 bg-white bg-opacity-90 rounded-lg shadow-lg p-6 backdrop-blur-md transform -translate-y-1/2"
+        >
           <h2 className="text-2xl font-bold mb-4 text-gray-800">GAFIS</h2>
 
           <form>
@@ -64,9 +71,8 @@ function App() {
           </form>
         </div>
       )}
-      ;
     </div>
   );
 }
 
-export default App;
+export default LoginPage;
