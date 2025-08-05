@@ -49,7 +49,7 @@ function App() {
           </form>
         </div>
       )}
-    </div>
+
   );
 }
 
