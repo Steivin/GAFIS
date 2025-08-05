@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function App() {
+function LoginPage() {
   const [showLogin, setShowLogin] = useState(false);
 
   return (
@@ -69,4 +69,4 @@ function App() {
   );
 }
 
-export default App;
+export default LoginPage;

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./Pages/LoginPage/LoginPage";
 import DashboardPage from "./Pages/DashboardPage/DashboardPage";
+import ProfilePage from "./Pages/DashboardPage/ProfilePage/ProfilePage";
 
 // Protege rutas con autenticación Firebase
 //import ProtectedRoute from "./Pages/Components/ProtectedRoute";
@@ -12,6 +13,7 @@ function App() {
         {/*               Rutas publicas           */}
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/profile" element={<ProfilePage />} />
 
         {/*               Rutas privadas           
         <Route
