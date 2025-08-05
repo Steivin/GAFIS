@@ -3,7 +3,7 @@ import { useState } from "react";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
-  return (g
+  return (
     <div className="relative min-h-screen bg-cover bg-center" >
       <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-40" />
 
@@ -43,11 +43,8 @@ function App() {
               <a href="#" className="text-sm text-green-600 hover:underline">¿Olvidaste tu contraseña?</a>
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded transition"
-            >
-              Ingresar
+            <button  type="submit"  className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded transition">
+              <a href="/dashboard">Ingresar</a>
             </button>
           </form>
         </div>
