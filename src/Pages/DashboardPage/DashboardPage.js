@@ -68,7 +68,6 @@ export default function DashboardPage() {
             <ul className="space-y-4">
               <li><a href="/dashboard" className="hover:underline">Inicio</a></li>
               <li><a href="/profile" className="hover:underline">Perfil</a></li>
-              <li><a href="#" className="hover:underline">Configuración</a></li>
               <li><a href="/request" className="hover:underline">Solicitudes</a></li>
               <li><a href="/formations" className="hover:underline">Formaciones</a></li>
               <li><a href="/" className="hover:underline">Cerrar sesión</a></li>

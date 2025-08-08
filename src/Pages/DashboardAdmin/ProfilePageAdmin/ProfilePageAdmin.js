@@ -1,41 +1,23 @@
-import React, { useState } from 'react';
-import { ArrowLeft} from "lucide-react";
+import React from "react";
+import { ArrowLeft, Menu } from "lucide-react";
 import logoGafis from "../../img/logo.png";
 import userAvatar from "../../img/profile.png";
-import { FiMenu } from "react-icons/fi";
 
-
-export default function ProfilePage() {
-  const [showSidebar, setShowSidebar] = useState(false);
+export default function ProfilePageAdmin() {
   return (
     <div className="flex-1 bg-gradient-to-b from-green-500 to-white p-4">
-      {showSidebar && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="fixed inset-0 bg-black opacity-30" onClick={() => setShowSidebar(false)}></div>
-          <div className="relative z-50 w-64 h-full bg-green-700 text-white shadow-lg p-4">
-            <button className="mb-4 text-white text-right w-full" onClick={() => setShowSidebar(false)}>X</button>
-            <ul className="space-y-4">
-              <li><a href="/dashboard" className="hover:underline">Inicio</a></li>
-
-              <li><a href="/" className="hover:underline">Cerrar sesión</a></li>
-            </ul>
-          </div>
-        </div>
-      )}
       {/* Header */}
       <header className="bg-green-600 text-white p-4 flex justify-between items-center rounded-md shadow">
         <div className="flex items-center gap-2">
           <img src={logoGafis} alt="GAFIS Logo" className="h-6" />
         </div>
-        <button onClick={() => setShowSidebar(true)}>
-          <FiMenu size={28} />
-        </button>
+        <Menu className="h-6 w-6" />
       </header>
 
       {/* Botón regresar */}
       <div className="flex justify-end mt-4">
         <button className="bg-white p-2 rounded-full shadow hover:bg-gray-100 transition" >
-          <a href="/dashboard"> <ArrowLeft className="text-black h-5 w-5" /></a>
+          <a href="/admin"> <ArrowLeft className="text-black h-5 w-5" /></a>
         </button>
       </div>
 
