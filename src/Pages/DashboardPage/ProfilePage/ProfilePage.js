@@ -16,7 +16,8 @@ export default function ProfilePage() {
             <button className="mb-4 text-white text-right w-full" onClick={() => setShowSidebar(false)}>X</button>
             <ul className="space-y-4">
               <li><a href="/dashboard" className="hover:underline">Inicio</a></li>
-
+              <li><a href="/request" className="hover:underline">Solicitudes</a></li>
+              <li><a href="/formations" className="hover:underline">Formaciones</a></li>
               <li><a href="/" className="hover:underline">Cerrar sesión</a></li>
             </ul>
           </div>
