@@ -42,7 +42,7 @@ function LoginPage() {
             <label className="block mb-1 text-sm font-medium text-white">Rol</label>
             <select className="w-full border border-gray-300 rounded px-3 py-2 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring focus:ring-green-400">
               <option>Instructor</option>
-              <option>Aprendiz</option>
+              <option>Administrador</option>
             </select>
           </div>
           <div className="mb-4">

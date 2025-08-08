@@ -35,9 +35,9 @@ export default function DashboardAdmin() {
                     <div className="relative z-50 w-64 h-full bg-green-700 text-white shadow-lg p-4">
                         <button className="mb-4 text-white text-right w-full" onClick={() => setShowSidebar(false)}>X</button>
                         <ul className="space-y-4">
-                            <li><a href="/dashboard" className="hover:underline">Inicio</a></li>
-                            <li><a href="/profile" className="hover:underline">Perfil</a></li>
-                            <li><a href="#" className="hover:underline">Configuración</a></li>
+                            <li><a href="/admin" className="hover:underline">Inicio</a></li>
+                            <li><a href="/profileAdmin" className="hover:underline">Perfil</a></li>
+
                             <li><a href="/" className="hover:underline">Cerrar sesión</a></li>
                         </ul>
                     </div>
@@ -50,7 +50,7 @@ export default function DashboardAdmin() {
                     <img src={logo} alt="GAFIS Logo" className="h-6" />
                     <div className="flex items-center gap-4">
                         <button className="bg-green p-2 rounded-full shadow hover:bg-gray-100 transition" >
-                            <a href="/profile"> <FaUserCircle size={20} /></a>
+                            <a href="/profileAdmin"> <FaUserCircle size={20} /></a>
                         </button>
                         <button onClick={() => setShowSidebar(true)}>
                             <FiMenu size={28} />
@@ -68,6 +68,9 @@ export default function DashboardAdmin() {
 
                 {/* Botones centrados */}
                 <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-[100px] px-4">
+                    <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
+                        ASIGNACIONES
+                    </button>
                     <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
                         INSTRUCTORES
                     </button>
