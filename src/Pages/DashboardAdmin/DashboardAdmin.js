@@ -37,7 +37,6 @@ export default function DashboardAdmin() {
                         <ul className="space-y-4">
                             <li><a href="/admin" className="hover:underline">Inicio</a></li>
                             <li><a href="/profileAdmin" className="hover:underline">Perfil</a></li>
-
                             <li><a href="/" className="hover:underline">Cerrar sesión</a></li>
                         </ul>
                     </div>
@@ -76,6 +75,9 @@ export default function DashboardAdmin() {
                     </button>
                     <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
                         FORMACIONES
+                    </button>
+                    <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
+                        <a href='/crud'> CRUD</a>
                     </button>
                 </div>
 
