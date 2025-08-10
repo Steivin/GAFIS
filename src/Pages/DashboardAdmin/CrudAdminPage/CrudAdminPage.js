@@ -141,9 +141,11 @@ export default function CrudAdminPage() {
           <div className="relative z-50 w-64 h-full bg-green-700 text-white shadow-lg p-4">
             <button className="mb-4 text-white text-right w-full" onClick={() => setShowSidebar(false)}>X</button>
             <ul className="space-y-4">
-              <li><a href="/dashboard" className="hover:underline">Inicio</a></li>
-              <li><a href="/profile" className="hover:underline">Perfil</a></li>
-              <li><a href="/formations" className="hover:underline">Formaciones</a></li>
+              <li><a href="/admin" className="hover:underline">Inicio</a></li>
+              <li><a href="/profileAdmin" className="hover:underline">Perfil</a></li>
+              <li><a href="#" className="hover:underline">Formaciones</a></li>
+              <li><a href="#" className="hover:underline">Instructores</a></li>
+              <li><a href="#" className="hover:underline">Asignaciones</a></li>
               <li><a href="/" className="hover:underline">Cerrar sesión</a></li>
             </ul>
           </div>
@@ -159,8 +161,8 @@ export default function CrudAdminPage() {
         </button>
       </header>
 
-      <div className="flex justify-end mt-4">
-        <a href="/dashboard">
+      <div className="flex justify-end mt-4 mb-4">
+        <a href="/admin">
           <button className="bg-white p-2 rounded-full shadow hover:bg-gray-100 transition">
             <ArrowLeft className="text-black h-5 w-5" />
           </button>
