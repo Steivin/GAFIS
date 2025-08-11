@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import React, { useState, useEffect } from 'react';
 import { FaUserCircle } from "react-icons/fa";
 import { FiMenu } from "react-icons/fi";
@@ -67,18 +68,27 @@ export default function DashboardAdmin() {
 
                 {/* Botones centrados */}
                 <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-[100px] px-4">
-                    <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
+                    <Link
+                        to="/admin/asignaciones"
+                        className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px] text-center"
+                    >
                         ASIGNACIONES
-                    </button>
+                    </Link>
+
                     <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
                         INSTRUCTORES
                     </button>
+
                     <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
                         FORMACIONES
                     </button>
-                    <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
-                        <a href='/crud'> CRUD</a>
-                    </button>
+
+                    <Link
+                        to="/crud"
+                        className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px] text-center"
+                    >
+                        CRUD
+                    </Link>
                 </div>
 
                 {/* Slider de tarjetas */}

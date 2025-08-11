@@ -7,6 +7,7 @@ import RequestPage from "./Pages/DashboardPage/RequestPage/RequestPage";
 import FormationsPage from "./Pages/DashboardPage/FormationsPage/FormationsPage";
 import ProfilePageAdmin from "./Pages/DashboardAdmin/ProfilePageAdmin/ProfilePageAdmin";
 import CrudPage from "./Pages/DashboardAdmin/CrudAdminPage/CrudAdminPage";
+import AsignacionesPage from "./Pages/DashboardAdmin/AsignacionesPage/AsignacionesPage";
 
 // Protege rutas con autenticación Firebase
 //import ProtectedRoute from "./Pages/Components/ProtectedRoute";
@@ -24,6 +25,7 @@ function App() {
         <Route path="/formations" element={<FormationsPage />} />
         <Route path="/profileAdmin" element={<ProfilePageAdmin />} />
         <Route path="/crud" element={<CrudPage />} />
+        <Route path="/admin/asignaciones" element={<AsignacionesPage />} />
 
         {/*               Rutas privadas           
         <Route
