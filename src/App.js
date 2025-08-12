@@ -8,15 +8,13 @@ import FormationsPage from "./Pages/DashboardPage/FormationsPage/FormationsPage"
 import ProfilePageAdmin from "./Pages/DashboardAdmin/ProfilePageAdmin/ProfilePageAdmin";
 import CrudPage from "./Pages/DashboardAdmin/CrudAdminPage/CrudAdminPage";
 import AsignacionesPage from "./Pages/DashboardAdmin/AsignacionesPage/AsignacionesPage";
-
-// Protege rutas con autenticación Firebase
-//import ProtectedRoute from "./Pages/Components/ProtectedRoute";
+import { InstructorDetalle, InstructoresPage } from "./Pages/DashboardAdmin/InstructoresPage/InstructoresPage";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/*               Rutas publicas           */}
+        {/* Rutas públicas */}
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
@@ -26,31 +24,9 @@ function App() {
         <Route path="/profileAdmin" element={<ProfilePageAdmin />} />
         <Route path="/crud" element={<CrudPage />} />
         <Route path="/admin/asignaciones" element={<AsignacionesPage />} />
+        <Route path="/admin/instructores" element={<InstructoresPage />} />
+        <Route path="/admin/instructor/:id" element={<InstructorDetalle />} />
 
-        {/*               Rutas privadas           
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              {" "}
-              <DashboardPage />{" "}
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/users"
-          element={
-            <ProtectedRoute>
-              {" "}
-              <UsersPage />{" "}
-            </ProtectedRoute>
-          }
-        />
-        */}
-
-        {/* Ruta genérica para páginas no encontradas 
-        <Route path="*" element={<NotFoundPage />} />
-        */}
       </Routes>
     </BrowserRouter>
   );

@@ -75,9 +75,12 @@ export default function DashboardAdmin() {
                         ASIGNACIONES
                     </Link>
 
-                    <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
+                    <Link
+                        to="/admin/instructores"
+                        className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px] text-center"
+                    >
                         INSTRUCTORES
-                    </button>
+                    </Link>
 
                     <button className="bg-white text-green-600 px-8 py-6 text-lg rounded-xl font-semibold shadow w-full max-w-[300px] sm:w-[200px]">
                         FORMACIONES

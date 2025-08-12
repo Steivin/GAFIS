@@ -53,29 +53,20 @@ export default function AsignacionesPage() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-500 to-white">
+        <div className="flex-1 bg-gradient-to-b from-green-500 to-white p-4">
             {/* Header */}
-            <header className="sticky top-0 z-30 bg-green-600 text-white">
-                <div className="h-14 px-3 md:px-5 flex items-center justify-between">
-                    <img src={logo} alt="GAFIS" className="h-6" />
-                    <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 grid place-items-center rounded-full bg-white/20 ring-1 ring-white/30">
-                            <div className="h-5 w-5 rounded-full bg-white/80" />
-                        </div>
-                        <button
-                            onClick={() => setShowSidebar(true)}
-                            className="h-8 w-8 grid place-items-center rounded-md bg-white/10 hover:bg-white/20"
-                            aria-label="Abrir menú"
-                        >
-                            <FiMenu size={20} />
-                        </button>
-                    </div>
+            <header className="bg-green-600 text-white p-4 flex justify-between items-center rounded-md shadow">
+                <div className="flex items-center gap-2">
+                    <img src={logo} alt="GAFIS Logo" className="h-6" />
                 </div>
+                <button onClick={() => setShowSidebar(true)}>
+                    <FiMenu size={28} />
+                </button>
             </header>
 
             {/* Sidebar */}
             {showSidebar && (
-                <div className="fixed inset-0 z-40">
+                <div className="fixed inset-0 z-50">
                     <div className="absolute inset-0 bg-black/40" onClick={() => setShowSidebar(false)} />
                     <div className="relative ml-auto h-full w-64 bg-green-700 text-white p-4 shadow-xl">
                         <button onClick={() => setShowSidebar(false)} className="ml-auto mb-4 px-3 py-1 rounded bg-white/10 hover:bg-white/20">
@@ -96,7 +87,7 @@ export default function AsignacionesPage() {
                 {/* Top bar */}
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                     <button className="px-6 py-2 rounded-full bg-white text-green-700 font-semibold shadow-sm ring-1 ring-black/5">
-                        INSTRUCTORES
+                        ASIGNACIONES
                     </button>
 
                     {/* Buscador */}
