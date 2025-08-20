@@ -2,84 +2,63 @@
 import React, { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { FiMenu } from "react-icons/fi";
-import { Search, X, ArrowLeft, Menu, ChevronDown } from "lucide-react";
+import { Search, X, ArrowLeft, Menu } from "lucide-react";
 import logo from "../../img/logo.png";
-import Calendar from "../../components/Calendar";
-import {
-    startOfMonth,
-    endOfMonth,
-    eachDayOfInterval,
-    format,
-    parse,
-} from "date-fns";
+import { useInstructors } from "../../../context/InstructorsContext";
 
-const fromKey = (key) => parse(key, "yyyy-MM-dd", new Date());
-
+// ----------------------------------------------------------------------------------
+// Página
+// ----------------------------------------------------------------------------------
 export default function AsignacionesPage() {
     const [showSidebar, setShowSidebar] = useState(false);
     const [q, setQ] = useState("");
     const [selectedId, setSelectedId] = useState(null);
     const [menuOpenId, setMenuOpenId] = useState(null);
 
-    // Panel de asignación (después del calendario)
-    const [showAssignPanel, setShowAssignPanel] = useState(false);
-    const [selectedDayKey, setSelectedDayKey] = useState(null); // 'yyyy-MM-dd'
+    // Modal de asignación directa
+    const [showAssignDirect, setShowAssignDirect] = useState(false);
+    const [currentInstructor, setCurrentInstructor] = useState(null);
 
-    // Picker de formaciones
-    const [showPicker, setShowPicker] = useState(false);
-    const [pickerTarget, setPickerTarget] = useState(null);
-    const [selectedFormation, setSelectedFormation] = useState(null);
-
-    // Calendario
-    const [showCalendar, setShowCalendar] = useState(false);
-    const [selectedDate, setSelectedDate] = useState(null);
-
-    // 🔹 Emojis por fecha (yyyy-MM-dd -> '🌞' | '🌙' | '🌞🌙')
-    const [highlights, setHighlights] = useState({});
-    // 🔹 Asignación completa por fecha (yyyy-MM-dd -> payload)
-    const [assignments, setAssignments] = useState({});
-
-    // Demo data
-    const instructores = [
-        { id: 1, nombre: "JORGE EMILIO CLARO BAYONA" },
-        { id: 2, nombre: "ANA MARÍA RUIZ" },
-        { id: 3, nombre: "LUIS PÉREZ" },
-        { id: 4, nombre: "MARCELA GÓMEZ" },
-    ];
+    // ⬇️ del contexto global
+    const { instructors, assignmentsByInstructor } = useInstructors();
 
     const list = useMemo(() => {
         const t = q.trim().toLowerCase();
-        if (!t) return instructores;
-        return instructores.filter((i) => i.nombre.toLowerCase().includes(t));
-    }, [q, instructores]);
+        if (!t) return instructors;
+        return instructors.filter((i) => i.nombre.toLowerCase().includes(t));
+    }, [q, instructors]);
 
-    const openPicker = (instructorId) => {
-        setPickerTarget(instructorId);
-        setShowPicker(true);
+    const openAssignForInstructor = (instructor) => {
+        setCurrentInstructor(instructor);
+        setShowAssignDirect(true);
         setMenuOpenId(null);
-    };
-
-    const handleChooseFormation = (formation) => {
-        setSelectedFormation(formation); // guardamos la formación elegida
-        setShowPicker(false); // cerramos el picker
-        setShowCalendar(true); // mostramos el calendario
+        setSelectedId(instructor.id);
     };
 
     return (
-        <div className="flex-1 bg-gradient-to-b from-green-500 to-white p-4">
+        <div className="min-h-screen flex flex-col bg-gradient-to-b from-green-500 to-white">
             {/* Header */}
-            <header className="bg-green-600 text-white p-4 flex justify-between items-center rounded-md shadow">
-                <div className="flex items-center gap-2">
-                    <img src={logo} alt="GAFIS Logo" className="h-6" />
+            <header className="sticky top-0 z-30 bg-green-600 text-white">
+                <div className="h-14 px-3 md:px-5 flex items-center justify-between">
+                    <img src={logo} alt="GAFIS" className="h-6" />
+                    <div className="flex items-center gap-3">
+                        <div className="h-8 w-8 grid place-items-center rounded-full bg-white/20 ring-1 ring-white/30">
+                            <div className="h-5 w-5 rounded-full bg-white/80" />
+                        </div>
+                        <button
+                            onClick={() => setShowSidebar(true)}
+                            className="h-8 w-8 grid place-items-center rounded-md bg-white/10 hover:bg-white/20"
+                            aria-label="Abrir menú"
+                        >
+                            <FiMenu size={20} />
+                        </button>
+                    </div>
                 </div>
-                <button onClick={() => setShowSidebar(true)}>
-                    <FiMenu size={28} />
-                </button>
             </header>
 
             {/* Sidebar */}
             {showSidebar && (
-                <div className="fixed inset-0 z-50">
+                <div className="fixed inset-0 z-40">
                     <div
                         className="absolute inset-0 bg-black/40"
                         onClick={() => setShowSidebar(false)}
@@ -114,7 +93,7 @@ export default function AsignacionesPage() {
                 {/* Top bar */}
                 <div className="flex items-center justify-between gap-4 flex-wrap">
                     <button className="px-6 py-2 rounded-full bg-white text-green-700 font-semibold shadow-sm ring-1 ring-black/5">
-                        ASIGNACIONES
+                        INSTRUCTORES
                     </button>
 
                     {/* Buscador */}
@@ -156,12 +135,13 @@ export default function AsignacionesPage() {
                                 key={item.id}
                                 name={item.nombre}
                                 selected={selectedId === item.id}
-                                onSelect={() => setSelectedId(item.id)}
+                                asignado={!!(assignmentsByInstructor[item.id]?.length)}
+                                onSelect={() => openAssignForInstructor(item)}
                                 onOpenMenu={() =>
                                     setMenuOpenId(menuOpenId === item.id ? null : item.id)
                                 }
                                 menuOpen={menuOpenId === item.id}
-                                onPickFormacion={() => openPicker(item.id)}
+                                onPickFormacion={() => openAssignForInstructor(item)}
                                 showTopDivider={idx > 0}
                             />
                         ))}
@@ -174,170 +154,24 @@ export default function AsignacionesPage() {
                 </section>
             </main>
 
-            {/* Picker de Formaciones */}
-            {showPicker && (
-                <FormacionesPicker
-                    onClose={() => setShowPicker(false)}
-                    onPick={(formation) => handleChooseFormation(formation)}
-                />
-            )}
-
-            {/* Modal Calendario */}
-            {showCalendar && (
-                <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4">
-                    <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl ring-1 ring-black/10">
-                        <div className="flex items-center justify-between p-4 border-b">
-                            <span className="px-5 py-2 rounded-full bg-green-600 text-white font-semibold shadow-sm">
-                                CALENDARIO
-                            </span>
-                            <button
-                                onClick={() => setShowCalendar(false)}
-                                className="h-9 w-9 grid place-items-center rounded-full bg-gray-100 hover:bg-gray-200"
-                                aria-label="Cerrar"
-                            >
-                                ✕
-                            </button>
-                        </div>
-
-                        <div className="p-4">
-                            <Calendar
-                                selectedDate={selectedDate}
-                                highlights={highlights}
-                                onDayClick={(dateKey) => {
-                                    // Si el día ya tiene asignación, abrimos precargado
-                                    setSelectedDate(fromKey(dateKey));
-                                    setSelectedDayKey(dateKey);
-                                    setShowCalendar(false);
-                                    setShowAssignPanel(true);
-                                }}
-                                onDayDoubleClick={(dateKey) => {
-                                    setSelectedDate(fromKey(dateKey));
-                                    setShowCalendar(false);
-                                }}
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Panel de asignación */}
-            {showAssignPanel && (
-                <AssignPanel
-                    dateKey={selectedDayKey}
-                    initialValues={assignments[selectedDayKey]} // ← precarga si ya existía
-                    onClose={() => setShowAssignPanel(false)}
-                    onAssign={({
-                        dateKey,
-                        competenciaId,
-                        ambienteId,
-                        dias,
-                        jornada,
-                        nota,
-                    }) => {
-                        const baseDate = fromKey(dateKey);
-
-                        // 1) volver al calendario en el mes correcto
-                        setSelectedDate(baseDate);
-                        setSelectedDayKey(dateKey);
-                        setShowAssignPanel(false);
-                        setShowCalendar(true);
-
-                        // 2) días activos del patrón
-                        const dayMap = {
-                            lunes: 1,
-                            martes: 2,
-                            miercoles: 3,
-                            jueves: 4,
-                            viernes: 5,
-                            sabado: 6,
-                        };
-                        const enabledDays = dias.todos
-                            ? [1, 2, 3, 4, 5, 6]
-                            : Object.keys(dayMap)
-                                .filter((k) => dias[k])
-                                .map((k) => dayMap[k]);
-
-                        const addSymbol = jornada === "noche" ? "🌙" : "🌞";
-
-                        // 3) Emojis y asignaciones para TODO el mes
-                        setHighlights((prev) => {
-                            const start = startOfMonth(baseDate);
-                            const end = endOfMonth(baseDate);
-                            const days = eachDayOfInterval({ start, end });
-
-                            const next = { ...prev };
-
-                            days.forEach((d) => {
-                                const dow = d.getDay(); // 0..6
-                                if (enabledDays.includes(dow)) {
-                                    const key = format(d, "yyyy-MM-dd");
-                                    const prevSym = next[key] || "";
-                                    let combined = prevSym || addSymbol;
-                                    if (
-                                        (prevSym === "🌞" && addSymbol === "🌙") ||
-                                        (prevSym === "🌙" && addSymbol === "🌞")
-                                    ) {
-                                        combined = "🌞🌙";
-                                    }
-                                    next[key] = combined;
-                                }
-                            });
-
-                            return next;
-                        });
-
-                        // Guardar los datos completos por cada fecha afectada
-                        setAssignments((prev) => {
-                            const start = startOfMonth(baseDate);
-                            const end = endOfMonth(baseDate);
-                            const days = eachDayOfInterval({ start, end });
-
-                            const next = { ...prev };
-                            const payload = {
-                                competenciaId,
-                                ambienteId,
-                                dias, // snapshot del patrón
-                                jornada,
-                                nota,
-                            };
-
-                            days.forEach((d) => {
-                                const dow = d.getDay();
-                                if (enabledDays.includes(dow)) {
-                                    const key = format(d, "yyyy-MM-dd");
-                                    next[key] = payload;
-                                }
-                            });
-
-                            return next;
-                        });
-                    }}
-                    onDelete={() => {
-                        // Eliminar SOLO el día actualmente seleccionado
-                        if (!selectedDayKey) return;
-                        setHighlights((prev) => {
-                            const cp = { ...prev };
-                            delete cp[selectedDayKey];
-                            return cp;
-                        });
-                        setAssignments((prev) => {
-                            const cp = { ...prev };
-                            delete cp[selectedDayKey];
-                            return cp;
-                        });
-                        setShowAssignPanel(false);
-                        setShowCalendar(true);
-                    }}
+            {/* Modal: Asignación directa */}
+            {showAssignDirect && currentInstructor && (
+                <AssignDirectModal
+                    instructor={currentInstructor}
+                    onClose={() => setShowAssignDirect(false)}
                 />
             )}
         </div>
     );
 }
 
-/* ---- Fila con menú ---- */
+// ----------------------------------------------------------------------------------
+// Fila de lista
+// ----------------------------------------------------------------------------------
 function Row({
     name,
     selected,
+    asignado,
     onSelect,
     onOpenMenu,
     menuOpen,
@@ -354,8 +188,13 @@ function Row({
                 onClick={onSelect}
                 className="flex items-center gap-3 pl-4 pr-2 w-full text-left"
             >
-                <span className="h-6 w-6 rounded-full border-2 border-gray-300 grid place-items-center">
-                    {selected && <span className="h-3 w-3 rounded-full bg-green-600" />}
+                <span
+                    className={`h-6 w-6 rounded-full border-2 grid place-items-center ${asignado ? "border-green-600" : "border-gray-300"
+                        }`}
+                >
+                    {(selected || asignado) && (
+                        <span className="h-3 w-3 rounded-full bg-green-600" />
+                    )}
                 </span>
                 <span className="font-semibold text-green-700 uppercase tracking-wide text-sm">
                     {name}
@@ -378,7 +217,7 @@ function Row({
                             onClick={onPickFormacion}
                             className="block w-full text-left px-3 py-2 text-sm text-green-700 hover:bg-gray-50"
                         >
-                            Elegir formación…
+                            Asignar…
                         </button>
                     </div>
                 )}
@@ -391,562 +230,250 @@ function EmptyRow() {
     return <div className="h-12 border-t border-gray-200" />;
 }
 
-/* ===========================================================
-   MODAL: Selector de Formaciones
-   =========================================================== */
-function FormacionesPicker({ onClose, onPick }) {
-    const [q, setQ] = useState("");
+// ----------------------------------------------------------------------------------
+// Modal de Asignación Directa + tarjeta resumen (usa contexto global)
+// ----------------------------------------------------------------------------------
+function AssignDirectModal({ instructor, onClose }) {
+    const { addAssignment, removeAllAssignments, catalogs } = useInstructors();
 
-    const formaciones = [
-        {
-            id: 101,
-            nombre: "Tecnólogo en Análisis y Desarrollo de Software 2873817",
-            etiqueta: "PROGRAMACIÓN",
-        },
-        { id: 102, nombre: "Gestión de Proyectos TI", etiqueta: "PROGRAMACIÓN" },
-        { id: 103, nombre: "Diseño UX/UI", etiqueta: "PROGRAMACIÓN" },
-        { id: 104, nombre: "Redes y Telecomunicaciones", etiqueta: "PROGRAMACIÓN" },
-    ];
+    const formaciones = catalogs.formaciones;
+    const ambientes = catalogs.ambientes;
 
-    const list = useMemo(() => {
-        const t = q.trim().toLowerCase();
+    // Estado del formulario
+    const [searchF, setSearchF] = useState("");
+    const [searchA, setSearchA] = useState("");
+
+    const [formationId, setFormationId] = useState(null);
+    const [jornada, setJornada] = useState("mañana");
+    const [ambienteId, setAmbienteId] = useState(null);
+    const [nota, setNota] = useState("");
+
+    const filteredF = useMemo(() => {
+        const t = searchF.trim().toLowerCase();
         if (!t) return formaciones;
         return formaciones.filter(
             (f) =>
                 f.nombre.toLowerCase().includes(t) ||
                 f.etiqueta.toLowerCase().includes(t)
         );
-    }, [q]);
+    }, [searchF, formaciones]);
 
-    const [selectedId, setSelectedId] = useState(formaciones[0]?.id ?? null);
-
-    return (
-        <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4">
-            <div className="mt-6 w-full max-w-4xl rounded-2xl bg-gradient-to-b from-green-600 to-green-200/30 shadow-xl ring-1 ring-black/10">
-                {/* Header */}
-                <div className="p-4 flex items-center justify-between">
-                    <span className="px-5 py-2 rounded-full bg-white text-green-700 font-semibold shadow-sm ring-1 ring-black/5">
-                        FORMACIONES
-                    </span>
-                    <button
-                        onClick={onClose}
-                        className="h-10 w-10 grid place-items-center rounded-full bg-white ring-1 ring-black/10 shadow"
-                        aria-label="Cerrar"
-                    >
-                        <X className="text-black" size={20} />
-                    </button>
-                </div>
-
-                {/* Buscador */}
-                <div className="px-4">
-                    <div className="relative max-w-2xl mx-auto">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-700">
-                            <Search size={18} />
-                        </span>
-                        <input
-                            value={q}
-                            onChange={(e) => setQ(e.target.value)}
-                            placeholder="Buscar..."
-                            className="w-full pl-9 pr-10 py-2 rounded-full bg-white/85 ring-1 ring-black/10 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-green-500 shadow"
-                        />
-                        {q && (
-                            <button
-                                onClick={() => setQ("")}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-black/5"
-                                aria-label="Limpiar"
-                            >
-                                <X size={18} className="text-green-700" />
-                            </button>
-                        )}
-                    </div>
-                </div>
-
-                {/* Lista */}
-                <div className="p-4">
-                    <div className="rounded-2xl bg-white shadow ring-1 ring-black/10 overflow-hidden">
-                        {list.map((f, idx) => (
-                            <div
-                                key={f.id}
-                                className={`h-12 flex items-center justify-between ${idx > 0 ? "border-t border-gray-200" : ""
-                                    }`}
-                            >
-                                <button
-                                    onClick={() => setSelectedId(f.id)}
-                                    className="flex items-center gap-3 pl-4 pr-2 w-full text-left"
-                                >
-                                    <span className="h-6 w-6 rounded-full border-2 border-gray-300 grid place-items-center">
-                                        {selectedId === f.id && (
-                                            <span className="h-3 w-3 rounded-full bg-green-600" />
-                                        )}
-                                    </span>
-                                    <span className="font-semibold text-green-700 tracking-wide text-sm">
-                                        {f.nombre}
-                                    </span>
-                                </button>
-                                <div className="pr-4">
-                                    <span className="px-3 py-1 rounded-md text-xs font-semibold text-green-700 bg-green-50 ring-1 ring-green-200">
-                                        {f.etiqueta}
-                                    </span>
-                                </div>
-                            </div>
-                        ))}
-                        {list.length < 6 &&
-                            Array.from({ length: 6 - list.length }).map((_, idx) => (
-                                <div key={`empty-${idx}`} className="h-12 border-t border-gray-200" />
-                            ))}
-                    </div>
-
-                    {/* Acciones */}
-                    <div className="mt-4 flex justify-end gap-3">
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300"
-                        >
-                            Cancelar
-                        </button>
-                        <button
-                            disabled={!selectedId}
-                            onClick={() => {
-                                const sel = formaciones.find((f) => f.id === selectedId);
-                                if (sel) onPick(sel);
-                            }}
-                            className={`px-4 py-2 rounded-lg text-white ${selectedId
-                                    ? "bg-green-600 hover:bg-green-700"
-                                    : "bg-green-300 cursor-not-allowed"
-                                }`}
-                        >
-                            Elegir
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-/* ===========================================================
-   PANEL: Asignación (plegable) — con precarga (initialValues)
-   =========================================================== */
-function AssignPanel({ dateKey, initialValues, onClose, onAssign, onDelete }) {
-    const [nota, setNota] = React.useState(initialValues?.nota || "");
-
-    // Secciones colapsables
-    const [openCompetencia, setOpenCompetencia] = React.useState(true);
-    const [openAmbiente, setOpenAmbiente] = React.useState(true);
-
-    // ------------------ Datos demo ------------------
-    const competencias = [
-        { id: 1, nombre: "DISEÑO DE SOFTWARE", codigo: "2844213335" },
-        { id: 2, nombre: "DESARROLLO DE SOFTWARE", codigo: "2565665645" },
-    ];
-    const ambientes = [
-        { id: 101, nombre: "104" },
-        { id: 102, nombre: "201" },
-        { id: 103, nombre: "302" },
-    ];
-
-    // ------------------ Selecciones ------------------
-    // Competencia
-    const [competenciaSearch, setCompetenciaSearch] = React.useState("");
-    const [selectedCompetenciaId, setSelectedCompetenciaId] = React.useState(
-        initialValues?.competenciaId ?? null
-    );
-
-    // Ambiente
-    const [ambienteSearch, setAmbienteSearch] = React.useState("");
-    const [selectedAmbienteId, setSelectedAmbienteId] = React.useState(
-        initialValues?.ambienteId ?? null
-    );
-
-    // DÍAS
-    const [dias, setDias] = React.useState(
-        initialValues?.dias ?? {
-            lunes: false,
-            martes: false,
-            miercoles: false,
-            jueves: false,
-            viernes: false,
-            sabado: false,
-            todos: false,
-        }
-    );
-
-    // JORNADA
-    const [jornada, setJornada] = React.useState(initialValues?.jornada ?? ""); // 'mañana' | 'tarde' | 'noche'
-
-    // Refrescar si cambian los initialValues
-    React.useEffect(() => {
-        if (!initialValues) return;
-        setNota(initialValues.nota || "");
-        setSelectedCompetenciaId(initialValues.competenciaId ?? null);
-        setSelectedAmbienteId(initialValues.ambienteId ?? null);
-        setJornada(initialValues.jornada ?? "");
-        setDias(
-            initialValues.dias ?? {
-                lunes: false,
-                martes: false,
-                miercoles: false,
-                jueves: false,
-                viernes: false,
-                sabado: false,
-                todos: false,
-            }
-        );
-    }, [initialValues]);
-
-    // ------------------ Filtrados ------------------
-    const competenciasFiltradas = React.useMemo(() => {
-        const t = competenciaSearch.trim().toLowerCase();
-        if (!t) return competencias;
-        return competencias.filter(
-            (c) =>
-                c.nombre.toLowerCase().includes(t) || c.codigo.toLowerCase().includes(t)
-        );
-    }, [competenciaSearch, competencias]);
-
-    const ambientesFiltrados = React.useMemo(() => {
-        const t = ambienteSearch.trim().toLowerCase();
+    const filteredA = useMemo(() => {
+        const t = searchA.trim().toLowerCase();
         if (!t) return ambientes;
         return ambientes.filter((a) => a.nombre.toLowerCase().includes(t));
-    }, [ambienteSearch, ambientes]);
+    }, [searchA, ambientes]);
 
-    // ------------------ Helpers UI ------------------
-    const d = dateKey ? new Date(dateKey) : new Date();
-    const labelFecha = d.toLocaleDateString("es-CO", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "2-digit",
-    });
+    const selectedF = formaciones.find((f) => f.id === formationId);
+    const selectedA = ambientes.find((a) => a.id === ambienteId);
 
-    const RowItem = ({ active, children, onClick }) => (
-        <button
-            onClick={onClick}
-            className={`w-full text-left px-3 py-2 border-b border-gray-300 hover:bg-gray-100 transition ${active ? "bg-green-50" : "bg-white"
-                }`}
-        >
-            {children}
-        </button>
-    );
+    const disabledAssign = !formationId || !ambienteId || !jornada;
 
-    const toggleDia = (k) => {
-        if (k === "todos") {
-            const v = !dias.todos;
-            setDias({
-                lunes: v,
-                martes: v,
-                miercoles: v,
-                jueves: v,
-                viernes: v,
-                sabado: v,
-                todos: v,
-            });
-        } else {
-            const next = { ...dias, [k]: !dias[k] };
-            next.todos =
-                next.lunes &&
-                next.martes &&
-                next.miercoles &&
-                next.jueves &&
-                next.viernes &&
-                next.sabado;
-            setDias(next);
-        }
+    const handleAssign = () => {
+        // Guardamos la asignación enriquecida (para que Instructores la muestre igual)
+        addAssignment(instructor.id, {
+            formationId,
+            formationNombre: selectedF?.nombre ?? "",
+            formationFicha: selectedF?.etiqueta ?? "",
+            ambienteId,
+            ambienteNombre: selectedA?.nombre ?? "",
+            jornada,
+            nota,
+        });
+        onClose();
     };
 
-    const anyDia =
-        dias.todos || Object.values({ ...dias, todos: undefined }).some(Boolean);
-
-    const disabledAssign =
-        !selectedCompetenciaId || !selectedAmbienteId || !anyDia || !jornada;
+    const handleDeleteAll = () => {
+        removeAllAssignments(instructor.id); // 🔥 limpia y apaga el círculo verde
+        onClose();
+    };
 
     return (
-        <div className="fixed inset-0 z-[70] bg-black/40 flex items-start justify-center p-4">
-            <div className="mt-4 w-full max-w-3xl bg-white rounded-2xl shadow-xl ring-1 ring-black/10 overflow-hidden">
-                {/* Header con fecha y volver */}
-                <div className="p-3 flex items-center justify-between">
-                    <span className="px-5 py-2 rounded-lg bg-green-50 text-green-700 font-semibold ring-1 ring-green-200">
-                        {labelFecha}
-                    </span>
+        <div className="fixed inset-0 z-[70] bg-black/40 backdrop-blur-[1px] flex items-center justify-center p-4">
+            <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl ring-1 ring-black/10">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b">
+                    <h2 className="text-green-700 font-extrabold tracking-wide text-lg md:text-xl">
+                        {instructor?.nombre}
+                    </h2>
                     <button
                         onClick={onClose}
-                        className="h-10 w-10 grid place-items-center rounded-full bg-white ring-1 ring-black/10 shadow"
-                        aria-label="Volver"
+                        className="h-9 w-9 grid place-items-center rounded-full bg-gray-100 hover:bg-gray-200"
+                        aria-label="Cerrar"
                     >
-                        <ArrowLeft className="text-black" size={18} />
+                        ✕
                     </button>
                 </div>
 
-                <div className="p-4 space-y-6">
-                    {/* ================== COMPETENCIA (lista + días) ================== */}
-                    <section className="rounded-xl ring-1 ring-slate-200 overflow-hidden">
-                        <button
-                            onClick={() => setOpenCompetencia((s) => !s)}
-                            className="w-full flex items-center justify-between px-4 py-3 bg-gray-100"
-                        >
-                            <h3 className="text-green-700 font-semibold tracking-wide">
-                                COMPETENCIA
-                            </h3>
-                            <ChevronDown
-                                className={`text-black/80 transition-transform ${openCompetencia ? "rotate-180" : ""
-                                    }`}
-                                size={18}
-                            />
-                        </button>
-
-                        <div
-                            className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${openCompetencia ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                                }`}
-                            style={{ gridTemplateColumns: "1fr" }}
-                        >
-                            <div className="overflow-hidden">
-                                {/* Buscador */}
-                                <div className="px-3 pt-3 pb-2">
+                {/* Body (scrollable) */}
+                <div className="p-4 max-h-[78vh] overflow-y-auto">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                        {/* Columna izquierda: Selectores */}
+                        <div className="space-y-4">
+                            {/* Formación */}
+                            <section className="rounded-xl ring-1 ring-slate-200 overflow-hidden">
+                                <div className="px-4 py-3 bg-gray-100 flex items-center justify-between">
+                                    <h3 className="text-green-700 font-semibold tracking-wide">
+                                        ELIGA LA FORMACIÓN
+                                    </h3>
+                                </div>
+                                <div className="p-3 space-y-2">
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/80">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-700">
                                             <Search size={16} />
                                         </span>
                                         <input
-                                            value={competenciaSearch}
-                                            onChange={(e) => setCompetenciaSearch(e.target.value)}
-                                            placeholder="Buscar competencia..."
-                                            className="w-full pl-8 pr-3 py-1.5 rounded bg-white ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={searchF}
+                                            onChange={(e) => setSearchF(e.target.value)}
+                                            placeholder="Buscar formación…"
+                                            className="w-full pl-8 pr-3 py-2 rounded bg-white ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
-                                </div>
 
-                                {/* Lista competencias */}
-                                <div className="px-2 pb-2">
-                                    <div className="rounded bg-white ring-1 ring-gray-300 max-h-56 overflow-y-auto">
-                                        {competenciasFiltradas.map((c) => (
-                                            <RowItem
-                                                key={c.id}
-                                                active={selectedCompetenciaId === c.id}
-                                                onClick={() => setSelectedCompetenciaId(c.id)}
+                                    <div className="rounded bg-white ring-1 ring-gray-300 max-h-48 overflow-y-auto">
+                                        {filteredF.map((f) => (
+                                            <button
+                                                key={f.id}
+                                                onClick={() => setFormationId(f.id)}
+                                                className={`w-full text-left px-3 py-2 border-b last:border-b-0 ${formationId === f.id ? "bg-green-50" : "bg-white"
+                                                    }`}
                                             >
-                                                <div className="flex justify-between gap-3">
+                                                <div className="flex items-center justify-between gap-3">
                                                     <span className="font-semibold text-gray-800">
-                                                        {c.nombre}
+                                                        {f.nombre}
                                                     </span>
-                                                    <span className="text-black font-semibold">
-                                                        {c.codigo}
+                                                    <span className="text-xs font-semibold text-green-700 bg-green-50 ring-1 ring-green-200 px-2 py-0.5 rounded">
+                                                        {f.etiqueta}
                                                     </span>
                                                 </div>
-                                            </RowItem>
+                                            </button>
                                         ))}
-                                        {competenciasFiltradas.length === 0 && (
+                                        {filteredF.length === 0 && (
                                             <div className="px-3 py-4 text-sm text-gray-500">
                                                 Sin resultados
                                             </div>
                                         )}
                                     </div>
                                 </div>
+                            </section>
 
-                                {/* DÍAS */}
-                                <div className="px-4 pt-3 pb-4">
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                        {[
-                                            ["lunes", "LUNES"],
-                                            ["martes", "MARTES"],
-                                            ["miercoles", "MIÉRCOLES"],
-                                            ["jueves", "JUEVES"],
-                                            ["viernes", "VIERNES"],
-                                            ["sabado", "SÁBADO"],
-                                            ["todos", "TODOS"],
-                                        ].map(([key, label]) => (
-                                            <label
-                                                key={key}
-                                                className="flex items-center gap-3 cursor-pointer select-none"
-                                            >
-                                                <span
-                                                    onClick={() => toggleDia(key)}
-                                                    className={`h-6 w-6 rounded-full border-2 grid place-items-center ${dias[key] ? "border-green-600" : "border-gray-300"
-                                                        }`}
-                                                >
-                                                    {dias[key] && (
-                                                        <span className="h-3 w-3 rounded-full bg-green-600" />
-                                                    )}
-                                                </span>
-                                                <span className="text-green-700 font-semibold">
-                                                    {label}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
+                            {/* Ambiente */}
+                            <section className="rounded-xl ring-1 ring-slate-200 overflow-hidden">
+                                <div className="px-4 py-3 bg-gray-100 flex items-center justify-between">
+                                    <h3 className="text-green-700 font-semibold tracking-wide">
+                                        ELIGA EL AMBIENTE DE FORMACIÓN
+                                    </h3>
                                 </div>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* ================== AMBIENTE (lista) + JORNADA ================== */}
-                    <section className="rounded-xl ring-1 ring-slate-200 overflow-hidden">
-                        <button
-                            onClick={() => setOpenAmbiente((s) => !s)}
-                            className="w-full flex items-center justify-between px-4 py-3 bg-gray-100"
-                        >
-                            <h3 className="text-green-700 font-semibold tracking-wide">
-                                AMBIENTE DE FORMACION
-                            </h3>
-                            <ChevronDown
-                                className={`text-black/80 transition-transform ${openAmbiente ? "rotate-180" : ""
-                                    }`}
-                                size={18}
-                            />
-                        </button>
-
-                        <div
-                            className={`grid transition-[grid-template-rows] duration-200 ease-in-out ${openAmbiente ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
-                                }`}
-                            style={{ gridTemplateColumns: "1fr" }}
-                        >
-                            <div className="overflow-hidden">
-                                {/* Buscador ambientes */}
-                                <div className="px-3 pt-3 pb-2">
+                                <div className="p-3 space-y-2">
                                     <div className="relative">
-                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-black/80">
+                                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-green-700">
                                             <Search size={16} />
                                         </span>
                                         <input
-                                            value={ambienteSearch}
-                                            onChange={(e) => setAmbienteSearch(e.target.value)}
-                                            placeholder="Buscar ambiente..."
-                                            className="w-full pl-8 pr-3 py-1.5 rounded bg-white ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-green-500"
+                                            value={searchA}
+                                            onChange={(e) => setSearchA(e.target.value)}
+                                            placeholder="Buscar ambiente…"
+                                            className="w-full pl-8 pr-3 py-2 rounded bg-white ring-1 ring-black/10 focus:outline-none focus:ring-2 focus:ring-green-500"
                                         />
                                     </div>
-                                </div>
 
-                                {/* Lista ambientes */}
-                                <div className="px-2 pb-2">
-                                    <div className="rounded bg-white ring-1 ring-gray-300 max-h-56 overflow-y-auto">
-                                        {ambientesFiltrados.map((a) => (
-                                            <RowItem
+                                    <div className="rounded bg-white ring-1 ring-gray-300 max-h-40 overflow-y-auto">
+                                        {filteredA.map((a) => (
+                                            <button
                                                 key={a.id}
-                                                active={selectedAmbienteId === a.id}
-                                                onClick={() => setSelectedAmbienteId(a.id)}
+                                                onClick={() => setAmbienteId(a.id)}
+                                                className={`w-full text-left px-3 py-2 border-b last:border-b-0 ${ambienteId === a.id ? "bg-green-50" : "bg-white"
+                                                    }`}
                                             >
-                                                <div className="flex justify-between gap-3">
-                                                    <span className="font-semibold text-gray-800">
-                                                        {a.nombre}
-                                                    </span>
-                                                </div>
-                                            </RowItem>
+                                                <span className="font-semibold text-gray-800">
+                                                    {a.nombre}
+                                                </span>
+                                            </button>
                                         ))}
-                                        {ambientesFiltrados.length === 0 && (
+                                        {filteredA.length === 0 && (
                                             <div className="px-3 py-4 text-sm text-gray-500">
                                                 Sin resultados
                                             </div>
                                         )}
                                     </div>
                                 </div>
+                            </section>
 
-                                {/* JORNADA */}
-                                <div className="px-4 pt-3 pb-4">
-                                    <div className="grid grid-cols-3 gap-3 max-w-md">
-                                        {[
-                                            ["mañana", "MAÑANA"],
-                                            ["tarde", "TARDE"],
-                                            ["noche", "NOCHE"],
-                                        ].map(([key, label]) => (
-                                            <label
-                                                key={key}
-                                                className="flex items-center gap-3 cursor-pointer select-none"
+                            {/* Jornada */}
+                            <section className="rounded-xl ring-1 ring-slate-200 overflow-hidden">
+                                <div className="px-4 py-3 bg-gray-100">
+                                    <h3 className="text-green-700 font-semibold tracking-wide">
+                                        ELIJA JORNADA
+                                    </h3>
+                                </div>
+                                <div className="p-4 grid grid-cols-3 gap-3 max-w-lg">
+                                    {[
+                                        ["mañana", "MAÑANA"],
+                                        ["tarde", "TARDE"],
+                                        ["noche", "NOCHE"],
+                                    ].map(([key, label]) => (
+                                        <label
+                                            key={key}
+                                            className="flex items-center gap-3 cursor-pointer select-none"
+                                        >
+                                            <span
+                                                onClick={() => setJornada(key)}
+                                                className={`h-6 w-6 rounded-full border-2 grid place-items-center ${jornada === key ? "border-green-600" : "border-gray-300"
+                                                    }`}
                                             >
-                                                <span
-                                                    onClick={() => setJornada(key)}
-                                                    className={`h-6 w-6 rounded-full border-2 grid place-items-center ${jornada === key ? "border-green-600" : "border-gray-300"
-                                                        }`}
-                                                >
-                                                    {jornada === key && (
-                                                        <span className="h-3 w-3 rounded-full bg-green-600" />
-                                                    )}
-                                                </span>
-                                                <span className="text-green-700 font-semibold">
-                                                    {label}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
+                                                {jornada === key && (
+                                                    <span className="h-3 w-3 rounded-full bg-green-600" />
+                                                )}
+                                            </span>
+                                            <span className="text-green-700 font-semibold">
+                                                {label}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </section>
+                        </div>
+
+                        {/* Columna derecha: Tarjeta resumen */}
+                        <div className="rounded-xl ring-1 ring-slate-200 p-4">
+                            <div className="text-xs text-slate-600 space-y-1">
+                                <div>🌞 🌙</div>
+                                <div>
+                                    FORMACIÓN: <strong>{selectedF?.nombre ?? "—"}</strong>
+                                </div>
+                                <div>
+                                    FICHA: <strong>{selectedF?.etiqueta ?? "—"}</strong>
+                                </div>
+                                <div>
+                                    AMBIENTE: <strong>{selectedA?.nombre ?? "—"}</strong>
+                                </div>
+                                <div>
+                                    JORNADA: <strong>{jornada || "—"}</strong>
+                                </div>
+
+                                <div className="mt-3 font-semibold">
+                                    AMBIENTE DE FORMACIÓN ASIGNADA
+                                </div>
+                                <div className="mt-2 h-2 w-full rounded-full bg-green-100 ring-1 ring-green-200">
+                                    <div className="h-2 rounded-full bg-green-600 w-[0%]" />
                                 </div>
                             </div>
-                        </div>
-                    </section>
 
-                    {/* Tarjeta informativa + Nota */}
-                    <div className="rounded-xl ring-1 ring-slate-200 p-4 max-w-lg">
-                        <div className="text-xs text-slate-600 space-y-0.5">
-                            <div>🌞 🌙</div>
-                            <div>
-                                COMPETENCIA:{" "}
-                                <strong>
-                                    {competencias.find((c) => c.id === selectedCompetenciaId)
-                                        ?.nombre || "—"}
-                                </strong>{" "}
-                                (
-                                {competencias.find((c) => c.id === selectedCompetenciaId)
-                                    ?.codigo || "—"}
-                                )
-                            </div>
-                            <div>
-                                AMBIENTE:{" "}
-                                <strong>
-                                    {ambientes.find((a) => a.id === selectedAmbienteId)?.nombre ||
-                                        "—"}
-                                </strong>
-                            </div>
-                            <div>
-                                JORNADA: <strong>{jornada || "—"}</strong>
-                            </div>
-                            <div>
-                                DÍAS:{" "}
-                                <strong>
-                                    {dias.todos
-                                        ? "TODOS"
-                                        : ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado"]
-                                            .filter((k) => dias[k])
-                                            .map((k) => k.toUpperCase())
-                                            .join(", ") || "—"}
-                                </strong>
-                            </div>
-                            <div className="mt-3 font-semibold">
-                                AMBIENTE DE FORMACIÓN ASIGNADA
-                            </div>
-                            <div className="mt-2 h-2 w-full rounded-full bg-green-100 ring-1 ring-green-200">
-                                <div className="h-2 rounded-full bg-green-600 w-[0%]" />
-                            </div>
+                            <textarea
+                                value={nota}
+                                onChange={(e) => setNota(e.target.value)}
+                                placeholder="Observaciones…"
+                                className="mt-3 w-full min-h-[120px] border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
                         </div>
-
-                        <textarea
-                            value={nota}
-                            onChange={(e) => setNota(e.target.value)}
-                            placeholder="Observaciones..."
-                            className="mt-3 w-full border border-slate-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                        />
                     </div>
 
-                    {/* Acciones */}
-                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                    {/* Botones */}
+                    <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
                         <button
-                            onClick={() =>
-                                onAssign({
-                                    dateKey,
-                                    competenciaId: selectedCompetenciaId,
-                                    ambienteId: selectedAmbienteId,
-                                    dias,
-                                    jornada,
-                                    nota,
-                                })
-                            }
-                            disabled={
-                                !selectedCompetenciaId ||
-                                !selectedAmbienteId ||
-                                !(dias.todos ||
-                                    Object.values({ ...dias, todos: undefined }).some(Boolean)) ||
-                                !jornada
-                            }
-                            className={`px-6 py-3 rounded-lg font-semibold ${!selectedCompetenciaId ||
-                                    !selectedAmbienteId ||
-                                    !(dias.todos ||
-                                        Object.values({ ...dias, todos: undefined }).some(Boolean)) ||
-                                    !jornada
+                            disabled={disabledAssign}
+                            onClick={handleAssign}
+                            className={`px-6 py-3 rounded-lg font-semibold ${disabledAssign
                                     ? "bg-green-300 cursor-not-allowed text-white"
                                     : "bg-green-600 hover:bg-green-700 text-white"
                                 }`}
@@ -955,7 +482,7 @@ function AssignPanel({ dateKey, initialValues, onClose, onAssign, onDelete }) {
                         </button>
 
                         <button
-                            onClick={onDelete}
+                            onClick={handleDeleteAll}
                             className="px-6 py-3 rounded-lg font-semibold bg-slate-200 hover:bg-slate-300 text-slate-800"
                         >
                             ELIMINAR
