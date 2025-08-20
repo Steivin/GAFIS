@@ -10,24 +10,31 @@ import CrudPage from "./Pages/DashboardAdmin/CrudAdminPage/CrudAdminPage";
 import AsignacionesPage from "./Pages/DashboardAdmin/AsignacionesPage/AsignacionesPage";
 import { InstructorDetalle, InstructoresPage } from "./Pages/DashboardAdmin/InstructoresPage/InstructoresPage";
 
+// ⬇️ Importa el provider del contexto global de instructores/asignaciones
+import { InstructorsProvider } from "./context/InstructorsContext";
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* Rutas públicas */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
-        <Route path="/admin" element={<DashboardAdmin />} />
-        <Route path="/request" element={<RequestPage />} />
-        <Route path="/formations" element={<FormationsPage />} />
-        <Route path="/profileAdmin" element={<ProfilePageAdmin />} />
-        <Route path="/crud" element={<CrudPage />} />
-        <Route path="/admin/asignaciones" element={<AsignacionesPage />} />
-        <Route path="/admin/instructores" element={<InstructoresPage />} />
-        <Route path="/admin/instructor/:id" element={<InstructorDetalle />} />
+      {/* ⬇️ Envolvemos todas las rutas para compartir estado entre páginas */}
+      <InstructorsProvider>
+        <Routes>
+          {/* Rutas públicas */}
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/admin" element={<DashboardAdmin />} />
+          <Route path="/request" element={<RequestPage />} />
+          <Route path="/formations" element={<FormationsPage />} />
+          <Route path="/profileAdmin" element={<ProfilePageAdmin />} />
+          <Route path="/crud" element={<CrudPage />} />
 
-      </Routes>
+          {/* Admin */}
+          <Route path="/admin/asignaciones" element={<AsignacionesPage />} />
+          <Route path="/admin/instructores" element={<InstructoresPage />} />
+          <Route path="/admin/instructor/:id" element={<InstructorDetalle />} />
+        </Routes>
+      </InstructorsProvider>
     </BrowserRouter>
   );
 }

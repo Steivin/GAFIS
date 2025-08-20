@@ -1,170 +1,260 @@
-import React, { useState } from "react";
-import { Menu, Calendar, ArrowLeft } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+// src/Pages/DashboardAdmin/InstructoresPage/InstructoresPage.js
+import React, { useMemo } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
+import {
+    Menu,
+    Calendar,
+    ArrowLeft,
+    ChevronRight,
+    FileDown,
+} from "lucide-react";
 import logoGafis from "../../img/logo.png";
+import { useInstructors } from "../../../context/InstructorsContext";
 
-// Barra de progreso
-const Progress = ({ value, className }) => (
-    <div className={`bg-gray-300 rounded-full ${className}`}>
-        <div
-            className="bg-green-500 h-full rounded-full transition-all duration-300"
-            style={{ width: `${value}%` }}
-        />
-    </div>
-);
+/* ----------------------------- Barra Progreso ----------------------------- */
+const Progress = ({ value, className = "" }) => {
+    const clamped = Math.max(0, Math.min(100, value ?? 0));
+    return (
+        <div className={`h-3 w-full rounded-full bg-gray-200 ${className}`}>
+            <div
+                className="h-3 rounded-full bg-green-600 transition-[width] duration-300"
+                style={{ width: `${clamped}%` }}
+            />
+        </div>
+    );
+};
 
-// Lista de instructores (simulada)
-const instructores = [
-    {
-        id: 1,
-        nombre: "JORGE EMILIO CLARO BAYONA",
-        horasCompletadas: 0,
-        horasTotales: 165,
-        formaciones: [
-            {
-                id: 1,
-                titulo: "TECNOLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE",
-                ficha: "2873817",
-                ambiente: "104",
-            },
-            {
-                id: 2,
-                titulo: "TECNOLOGO EN ANÁLISIS Y DESARROLLO DE SOFTWARE",
-                ficha: "2845141",
-                ambiente: "101",
-            },
-        ],
-    },
-    {
-        id: 2,
-        nombre: "MARÍA FERNANDA LÓPEZ",
-        horasCompletadas: 40,
-        horasTotales: 120,
-        formaciones: [
-            {
-                id: 1,
-                titulo: "FORMACIÓN EN PYTHON",
-                ficha: "1234567",
-                ambiente: "201",
-            },
-        ],
-    },
-];
-
-// Página de lista de instructores
+/* =============================== LISTA PAGE =============================== */
 export function InstructoresPage() {
-    const [showSidebar, setShowSidebar] = useState(false);
+    const { instructors, assignmentsByInstructor } = useInstructors();
     const navigate = useNavigate();
 
+    const data = useMemo(
+        () =>
+            instructors.map((i) => ({
+                ...i,
+                asignaciones: assignmentsByInstructor[i.id]?.length || 0,
+            })),
+        [instructors, assignmentsByInstructor]
+    );
+
     return (
-        <div className="min-h-screen bg-gradient-to-b from-green-400 to-white p-4">
-            {/* Sidebar */}
-            {showSidebar && (
-                <div className="fixed inset-0 z-50 flex">
-                    <div
-                        className="fixed inset-0 bg-black opacity-30"
-                        onClick={() => setShowSidebar(false)}
-                    ></div>
-                    <div className="relative z-50 w-64 h-full bg-green-700 text-white shadow-lg p-4">
+        <div className="min-h-screen bg-gradient-to-b from-green-500 to-white">
+            {/* Header */}
+            <header className="sticky top-0 z-30 bg-green-600 text-white">
+                <div className="h-14 px-4 md:px-6 flex items-center justify-between">
+                    <img src={logoGafis} alt="GAFIS" className="h-6" />
+                    <div className="flex items-center gap-2">
+                        {/* Flecha atrás (a Admin) */}
                         <button
-                            className="mb-4 text-white text-right w-full"
-                            onClick={() => setShowSidebar(false)}
+                            onClick={() => navigate(-1)}
+                            className="h-8 w-8 grid place-items-center rounded-full bg-white/15 hover:bg-white/25 transition"
+                            aria-label="Volver"
+                            title="Volver"
                         >
-                            X
+                            <ArrowLeft size={18} />
                         </button>
-                        <ul className="space-y-4">
-                            <li><a href="/dashboard" className="hover:underline">Inicio</a></li>
-                            <li><a href="/profile" className="hover:underline">Perfil</a></li>
-                            <li><a href="/request" className="hover:underline">Solicitudes</a></li>
-                            <li><a href="/" className="hover:underline">Cerrar sesión</a></li>
-                        </ul>
+                        <button
+                            onClick={() => navigate("/admin")}
+                            className="hidden md:grid h-8 px-3 place-items-center rounded-full bg-white/15 hover:bg-white/25 text-sm"
+                            title="Inicio admin"
+                        >
+                            Admin
+                        </button>
+                        <button
+                            className="h-8 w-8 grid place-items-center rounded-md bg-white/15 hover:bg-white/25"
+                            title="Menú"
+                        >
+                            <Menu size={18} />
+                        </button>
                     </div>
                 </div>
-            )}
-
-            {/* Header */}
-            <header className="bg-green-600 text-white p-4 flex justify-between items-center rounded-md shadow">
-                <img src={logoGafis} alt="GAFIS Logo" className="h-6" />
-                <button onClick={() => setShowSidebar(true)}>
-                    <Menu size={28} />
-                </button>
             </header>
 
-            {/* Lista */}
-            <h1 className="text-2xl font-bold text-green-700 mt-6 mb-4">INSTRUCTORES</h1>
-            <div className="bg-white rounded-lg shadow overflow-hidden">
-                {instructores.map((inst) => (
-                    <div
-                        key={inst.id}
-                        className="flex items-center justify-between p-4 border-b hover:bg-green-50 cursor-pointer transition"
-                        onClick={() => navigate(`/admin/instructor/${inst.id}`)}
-
-                    >
-                        <span className="text-green-700 font-semibold">{inst.nombre}</span>
-                    </div>
-                ))}
+            {/* Título */}
+            <div className="px-4 md:px-6 pt-5">
+                <h1 className="text-white/95 font-bold text-2xl tracking-wide drop-shadow-sm">
+                    INSTRUCTORES
+                </h1>
             </div>
+
+            {/* Lista */}
+            <main className="px-4 md:px-6 py-4">
+                <div className="max-w-5xl mx-auto rounded-2xl bg-white/95 backdrop-blur shadow-lg ring-1 ring-black/10 overflow-hidden">
+                    {data.map((inst, idx) => (
+                        <button
+                            key={inst.id}
+                            onClick={() => navigate(`/admin/instructor/${inst.id}`)}
+                            className={`w-full flex items-center justify-between gap-3 px-4 md:px-5 py-4 hover:bg-green-50 transition ${idx > 0 ? "border-t border-gray-200/70" : ""
+                                }`}
+                        >
+                            <div className="flex min-w-0 items-center gap-3">
+                                <div className="h-8 w-8 rounded-full bg-green-100 ring-1 ring-green-300 grid place-items-center shrink-0">
+                                    <span className="text-green-700 font-semibold">
+                                        {inst.nombre?.[0] ?? "I"}
+                                    </span>
+                                </div>
+                                <span className="text-green-700 font-semibold truncate">
+                                    {inst.nombre}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center gap-3 shrink-0">
+                                <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 ring-1 ring-green-200">
+                                    {inst.asignaciones} asignación(es)
+                                </span>
+                                <ChevronRight className="text-green-600" size={18} />
+                            </div>
+                        </button>
+                    ))}
+
+                    {data.length === 0 && (
+                        <div className="p-8 text-center text-gray-500">
+                            No hay instructores disponibles.
+                        </div>
+                    )}
+                </div>
+            </main>
         </div>
     );
 }
 
-// Página de detalle del instructor
+/* ============================== DETALLE PAGE ============================== */
 export function InstructorDetalle() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { instructors, assignmentsByInstructor } = useInstructors();
 
-    const instructor = instructores.find((inst) => inst.id === parseInt(id));
+    const instructor = instructors.find((i) => String(i.id) === String(id));
+    const asignaciones = assignmentsByInstructor[instructor?.id] || [];
 
-    if (!instructor) return <p>Instructor no encontrado</p>;
+    // Demo: 2h por asignación para mostrar progreso
+    const horasTotales = 165;
+    const horasCompletadas = Math.min(asignaciones.length * 2, horasTotales);
+    const progreso = (horasCompletadas / horasTotales) * 100;
 
-    return (
-        <div className="min-h-screen bg-gradient-to-b from-green-400 to-white p-4">
-            {/* Header */}
-            <header className="bg-green-600 text-white p-4 flex justify-between items-center rounded-md shadow">
-                <img src={logoGafis} alt="GAFIS Logo" className="h-6" />
-                <button onClick={() => navigate(-1)}>
-                    <ArrowLeft size={24} />
-                </button>
-            </header>
-
-            {/* Info principal */}
-            <div className="flex flex-wrap gap-4 mt-6">
-                <div className="flex-1 bg-white rounded-lg shadow p-4 text-center">
-                    <p className="font-bold text-green-700">{instructor.nombre}</p>
-                </div>
-                <div className="flex-1 bg-white rounded-lg shadow p-4 text-center">
-                    <p className="font-bold text-green-700">
-                        HORAS COMPLETADAS: {instructor.horasCompletadas} de {instructor.horasTotales}
-                    </p>
-                    <Progress
-                        value={(instructor.horasCompletadas / instructor.horasTotales) * 100}
-                        className="h-3 mt-2"
-                    />
-                </div>
-                <div className="flex-1 bg-white rounded-lg shadow p-4 text-center">
-                    <p className="font-bold text-green-700 flex items-center justify-center gap-2">
-                        HORARIO <Calendar size={20} />
-                    </p>
-                    <button className="mt-2 flex flex-col items-center text-red-500">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/PDF_file_icon.svg" alt="PDF" className="h-8" />
-                        <span className="text-xs">EXPORTAR HORARIO</span>
+    if (!instructor) {
+        return (
+            <div className="min-h-screen bg-gradient-to-b from-green-500 to-white p-6 text-white">
+                <div className="max-w-4xl mx-auto">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/20 hover:bg-white/30 transition"
+                    >
+                        <ArrowLeft size={16} /> Volver
                     </button>
+                    <p className="mt-6 text-lg">Instructor no encontrado.</p>
                 </div>
             </div>
+        );
+    }
 
-            {/* Formaciones */}
-            <div className="bg-white rounded-lg shadow p-4 mt-6">
-                <h2 className="text-center text-green-700 font-bold mb-4">FORMACIONES ASIGNADAS</h2>
-                {instructor.formaciones.map((form) => (
-                    <div key={form.id} className="border-b py-2">
-                        <p className="text-green-700 font-semibold">{form.titulo}</p>
-                        <p className="text-green-500 text-sm">Ficha {form.ficha}</p>
-                        <p className="text-green-500 text-sm">
-                            Ambiente de formación {form.ambiente}
+    return (
+        <div className="min-h-screen bg-gradient-to-b from-green-500 to-white">
+            {/* Header */}
+            <header className="sticky top-0 z-30 bg-green-600 text-white">
+                <div className="h-14 px-4 md:px-6 flex items-center justify-between">
+                    <img src={logoGafis} alt="GAFIS" className="h-6" />
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="h-8 w-8 grid place-items-center rounded-full bg-white/15 hover:bg-white/25 transition"
+                            aria-label="Volver"
+                            title="Volver"
+                        >
+                            <ArrowLeft size={18} />
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            {/* Top cards */}
+            <section className="px-4 md:px-6 pt-5">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Nombre */}
+                    <div className="rounded-2xl bg-white shadow ring-1 ring-black/10 p-4">
+                        <p className="text-green-700 font-bold text-center">
+                            {instructor.nombre}
                         </p>
                     </div>
-                ))}
+
+                    {/* Progreso */}
+                    <div className="rounded-2xl bg-white shadow ring-1 ring-black/10 p-4">
+                        <p className="text-green-700 font-bold text-center">
+                            HORAS COMPLETADAS: {horasCompletadas} de {horasTotales}
+                        </p>
+                        <div className="mt-2">
+                            <Progress value={progreso} />
+                        </div>
+                    </div>
+
+                    {/* Horario / export */}
+                    <div className="rounded-2xl bg-white shadow ring-1 ring-black/10 p-4">
+                        <p className="text-green-700 font-bold flex items-center justify-center gap-2">
+                            HORARIO <Calendar size={18} />
+                        </p>
+                        <button
+                            className="mt-3 mx-auto flex items-center gap-2 px-3 py-1.5 rounded-md text-red-600 ring-1 ring-red-200 hover:bg-red-50"
+                            title="Exportar horario (PDF)"
+                        >
+                            <FileDown size={16} />
+                            <span className="text-xs font-semibold">EXPORTAR HORARIO</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            {/* Formaciones asignadas */}
+            <section className="px-4 md:px-6 py-6">
+                <div className="max-w-6xl mx-auto rounded-2xl bg-white shadow ring-1 ring-black/10">
+                    <h2 className="text-center text-green-700 font-bold py-4 border-b border-gray-200">
+                        FORMACIONES ASIGNADAS
+                    </h2>
+
+                    {asignaciones.length === 0 ? (
+                        <div className="p-8 text-center text-gray-500">
+                            Aún no hay formaciones asignadas para este instructor.
+                        </div>
+                    ) : (
+                        <ul className="divide-y divide-gray-200">
+                            {asignaciones.map((a, idx) => (
+                                <li key={idx} className="p-4">
+                                    <p className="text-green-700 font-semibold">
+                                        {a.formationNombre || "Formación"}
+                                    </p>
+                                    <p className="text-green-600 text-sm">
+                                        Ficha {a.formationFicha || "—"}
+                                    </p>
+                                    <p className="text-green-600 text-sm">
+                                        Ambiente de formación {a.ambienteNombre || "—"}
+                                    </p>
+                                    <p className="text-green-600 text-sm">
+                                        Jornada: {a.jornada ? a.jornada[0].toUpperCase() + a.jornada.slice(1) : "—"}
+                                    </p>
+                                    {a.nota && (
+                                        <p className="mt-1 text-gray-500 text-sm">Nota: {a.nota}</p>
+                                    )}
+                                </li>
+                            ))}
+                        </ul>
+                    )}
+                </div>
+            </section>
+
+            {/* Enlace a asignaciones por si quieres seguir editando */}
+            <div className="px-4 md:px-6 pb-10">
+                <div className="max-w-6xl mx-auto flex justify-end">
+                    <Link
+                        to="/admin/asignaciones"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white shadow"
+                    >
+                        Ir a Asignaciones
+                        <ChevronRight size={16} />
+                    </Link>
+                </div>
             </div>
         </div>
     );
 }
+
+export default InstructoresPage;
